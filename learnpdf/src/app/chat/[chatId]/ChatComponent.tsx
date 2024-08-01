@@ -219,7 +219,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ chatId }) => {
       };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
-      const response = await axios.post('/api/chat', { chatId, message: input }, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/chat`, { chatId, message: input }, {
         headers: { 'Content-Type': 'application/json' },
       });
 

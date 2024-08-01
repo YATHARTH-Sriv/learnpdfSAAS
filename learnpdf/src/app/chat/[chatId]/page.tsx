@@ -15,14 +15,14 @@ type Props = {
 
 const ChatPage = async ({ params: { chatId } }: Props) => {
   const { userId } = await auth()
-  if (!userId) return redirect('/sign-in')
+  if (!userId) return redirect(`${process.env.NEXT_PUBLIC_API_BASE_URL}/sign-in`)
 
   await dbconnect()
   const _chats: Chat[] = await ChatModel.find({ userId: userId });
   
   if (!_chats || _chats.length === 0) {
     console.log("No chats found for user:", userId);
-    return redirect('/');
+    return redirect(`${process.env.NEXT_PUBLIC_API_BASE_URL}`);
   }
 
   const currentChat: Chat | undefined = _chats.find((chat) => (chat._id as string).toString() === chatId);

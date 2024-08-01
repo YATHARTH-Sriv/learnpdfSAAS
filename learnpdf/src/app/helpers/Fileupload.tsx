@@ -31,7 +31,7 @@ export function Fileupload() {
       file_name: string;
       file_url: string;
     }) => {
-      const response = await axios.post("/api/create-chat", {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/create-chat`, {
         file_key,
         file_name,
         file_url,
