@@ -64,62 +64,124 @@ export async function POST(request: NextRequest) {
       ],
       stream: true,
     });
+    console.log("Response:", response);
 
+    // const stream = new ReadableStream({
+    //   async start(controller) {
+    //     const encoder = new TextEncoder();
+
+    //     await MessageModel.create({
+    //       chatId,
+    //       content: lastMessage.content,
+    //       role: "user",
+    //     });
+
+    //     let accumulatedResponse = "";
+
+    //     const reader = response.body?.getReader();
+    //     if (!reader) {
+    //       controller.close();
+    //       return;
+    //     }
+
+    //     while (true) {
+    //       const { done, value } = await reader.read();
+    //       if (done) break;
+
+    //       const chunk = new TextDecoder().decode(value);
+    //       const lines = chunk.split("\n").filter((line) => line.trim() !== "");
+    //       for (const line of lines) {
+    //         const message = line.replace(/^data: /, "");
+    //         if (message === "[DONE]") {
+    //           break;
+    //         }
+    //         try {
+    //           const parsed = JSON.parse(message);
+    //           const content = parsed.choices[0].delta.content || "";
+    //           accumulatedResponse += content;
+    //           controller.enqueue(encoder.encode(content));
+    //         } catch (error) {
+    //           console.error("Error parsing stream:", error);
+    //         }
+    //       }
+    //     }
+
+    //     await MessageModel.create({
+    //       chatId,
+    //       content: accumulatedResponse,
+    //       role: "system",
+    //     });
+
+    //     controller.close();
+    //   },
+    // });
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
-
         await MessageModel.create({
           chatId,
           content: lastMessage.content,
           role: "user",
         });
-
+    
         let accumulatedResponse = "";
-
+    
         const reader = response.body?.getReader();
         if (!reader) {
           controller.close();
           return;
         }
-
+    
         while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
-
+          if (done) {
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            break;
+          }
+    
           const chunk = new TextDecoder().decode(value);
-          const lines = chunk.split("\n").filter((line) => line.trim() !== "");
+          const lines = chunk.split('\n').filter(line => line.trim() !== '');
           for (const line of lines) {
-            const message = line.replace(/^data: /, "");
-            if (message === "[DONE]") {
+            const message = line.replace(/^data: /, '');
+            if (message === '[DONE]') {
+              controller.enqueue(encoder.encode('data: [DONE]\n\n'));
               break;
             }
             try {
               const parsed = JSON.parse(message);
-              const content = parsed.choices[0].delta.content || "";
-              accumulatedResponse += content;
-              controller.enqueue(encoder.encode(content));
+              const content = parsed.choices[0].delta.content || '';
+              if (content) {
+                accumulatedResponse += content;
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
+              }
             } catch (error) {
-              console.error("Error parsing stream:", error);
+              console.error('Error parsing stream:', error);
             }
           }
         }
-
+    
         await MessageModel.create({
           chatId,
           content: accumulatedResponse,
           role: "system",
         });
-
+    
         controller.close();
       },
     });
-
+    
+    // return new Response(stream, {
+    //   headers: {
+    //     'Content-Type': 'text/event-stream',
+    //     'Cache-Control': 'no-cache',
+    //     'Connection': 'keep-alive',
+    //   },
+    // });
     return new Response(stream, {
       headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
       },
     });
   } catch (error: any) {
