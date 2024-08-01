@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ConnectOptions } from "mongoose";
 
 type connectiontype={
     isConnected?:number
@@ -12,7 +12,11 @@ async function dbconnect():Promise<void>{
         return
       }
       try {
-        const db=await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.DB_NAME}`)
+        const db=await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.DB_NAME}`,{
+          serverSelectionTimeoutMS: 30000,
+          useUnifiedTopology: true,
+          useNewUrlParser: true,
+        } as ConnectOptions) // Add 'as ConnectOptions' to specify the type
         connection.isConnected=db.connections[0].readyState
         console.log("db connected")
       } catch (error) {

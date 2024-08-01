@@ -15,7 +15,7 @@ import Bottleneck from 'bottleneck';
 
 const limiter = new Bottleneck({
   minTime: 200, // Minimum time between requests (adjust based on rate limits)
-  maxConcurrent: 5 // Maximum number of concurrent requests (adjust based on rate limits)
+  maxConcurrent: 3 // Maximum number of concurrent requests (adjust based on rate limits)
 });
 
 

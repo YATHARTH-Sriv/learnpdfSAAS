@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { loadpdfIntoPinecone } from "@/app/helpers/Pincone";
 
 // /api/create-chat
-export const maxDuration = 20; // This function can run for a maximum of 5 seconds
+export const maxDuration = 60 // This function can run for a maximum of 5 seconds
 export async function POST(req: Request, res: Response) {
   const { userId } = auth();
   if (!userId) {
