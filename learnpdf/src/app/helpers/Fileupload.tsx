@@ -31,7 +31,7 @@ export function Fileupload() {
       file_name: string;
       file_url: string;
     }) => {
-      const response = await axios.post("https://learnpdf.vercel.app/api/create-chat", {
+      const response = await axios.post("/api/create-chat", {
         file_key,
         file_name,
         file_url,
@@ -91,7 +91,7 @@ export function Fileupload() {
                 await limiter.schedule(async () => mutate({ file_key, file_name, file_url }, {
                   onSuccess: ({ chat_id }) => {
                     toast.success("Chat created!");
-                    router.push(`https://learnpdf.vercel.app/chat/${chat_id}`);
+                    router.push(`/chat/${chat_id}`);
                   },
                   onError: (err) => {
                     toast.error("Error creating chat");
