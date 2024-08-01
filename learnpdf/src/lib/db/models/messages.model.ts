@@ -1,23 +1,28 @@
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
-import mongoose, { Schema, Document } from 'mongoose';
-
-interface Messages extends Document {
-  chatId: mongoose.Schema.Types.ObjectId;
-  content: string;
-  createdAt: Date;
-  role: string;
+enum UserRole {
+  USER = 'user',
+  SYSTEM = 'system',
 }
 
-const MessageSchema: Schema<Messages>=new Schema(
-  {
-    chatId: { type: mongoose.Schema.Types.ObjectId, ref: 'Chat', required: true },
-    content: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now },
-    role: { type: String, required: true, enum: ['user', 'gpt'] }, 
-  },
-  { timestamps: true }
-);
+// Define the IMessage interface
+export interface IMessage extends Document {
+  chatId: mongoose.Types.ObjectId; 
+  content: string;
+  createdAt: Date;
+  role: UserRole;
+}
 
-// Export the Mongoose model
-const MessageModel=(mongoose.models.Message as mongoose.Model<Messages> || mongoose.model<Messages>('Message', MessageSchema))
+
+const MessageSchema: Schema<IMessage> = new Schema({
+  chatId: { type: mongoose.Schema.Types.ObjectId, ref: 'chat', required: true },
+  content: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now, required: true },
+  role: { type: String, enum: Object.values(UserRole), required: true },
+});
+
+MessageSchema.index({ chatId: 1 })
+const MessageModel: Model<IMessage> =
+  mongoose.models.Message || mongoose.model<IMessage>('Message', MessageSchema);
+
 export default MessageModel;

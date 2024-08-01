@@ -1,36 +1,31 @@
-import { db } from "@/lib/db";
-import { chats } from "@/lib/db/schema";
-import { loadS3IntoPinecone } from "@/lib/pinecone";
-import { getS3Url } from "@/lib/s3";
-import { auth } from "@clerk/nextjs";
+
+import ChatModel from "@/lib/db/models/chat.model";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { loadpdfIntoPinecone } from "@/app/helpers/Pincone";
 
 // /api/create-chat
 export async function POST(req: Request, res: Response) {
-  const { userId } = await auth();
+  const { userId } = auth();
   if (!userId) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   try {
     const body = await req.json();
-    const { file_key, file_name } = body;
-    console.log(file_key, file_name);
-    await loadS3IntoPinecone(file_key);
-    const chat_id = await db
-      .insert(chats)
-      .values({
-        fileKey: file_key,
-        pdfName: file_name,
-        pdfUrl: getS3Url(file_key),
-        userId,
-      })
-      .returning({
-        insertedId: chats.id,
-      });
+    const { file_key, file_name, file_url } = body;
+    console.log(file_key, file_name,file_url);
+    const newchat= new ChatModel({
+      fileKey: file_key,
+      pdfName: file_name,
+      pdfUrl: file_url,
+      userId,
+    });
+    const savedChat = await newchat.save();
+    await loadpdfIntoPinecone(file_url,file_key);
 
     return NextResponse.json(
       {
-        chat_id: chat_id[0].insertedId,
+        chat_id: newchat._id,
       },
       { status: 200 }
     );

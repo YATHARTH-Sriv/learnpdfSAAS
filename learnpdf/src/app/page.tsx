@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import dbconnect from "@/lib/db/dbconnect";
 import {UserButton} from '@clerk/nextjs'
 import { auth } from "@clerk/nextjs/server";
-import { LogIn } from "lucide-react";
+import { ArrowRight, LogIn } from "lucide-react";
 import Link from "next/link";
 import { Fileupload } from "./helpers/Fileupload";
 
@@ -25,20 +25,20 @@ export default async function Home() {
             <h1 className="mr-3 text-5xl font-semibold">Chat with any PDF</h1>
              <UserButton afterSwitchSessionUrl="/" /> 
           </div>
-          {/* <div className="flex mt-2">
-            {isAuth && firstChat && (
+          <div className="flex mt-2">
+            {isAuth && (
               <>
-                <Link href={`/chat/${firstChat.id}`}>
-                  <Button>
+                {/* <Link href={`/chat/${firstChat.id}`}> */}
+                  <Button className=" mt-2 mb-2 ">
                     Go to Chats <ArrowRight className="ml-2" />
                   </Button>
-                </Link>
-                <div className="ml-3">
+                {/* </Link> */}
+                {/* <div className="ml-3">
                   <SubscriptionButton isPro={isPro} />
-                </div>
+                </div> */}
               </>
             )}
-          </div> */}
+          </div>
 
           <p className="max-w-xl mt-1 text-lg text-slate-600">
             Finding it difficult to understand the whole pdf or any research paper

@@ -1,12 +1,14 @@
-import mongoose ,{Schema,Document} from "mongoose";
+import mongoose ,{Schema,Document, InferSchemaType} from "mongoose";
 
-interface Chat extends Document {
+export interface Chat extends Document {
     pdfName: string;
     pdfUrl: string;
     createdAt: Date;
     userId: string;
     fileKey: string;
   }
+
+
 
 
 const ChatSchema: Schema<Chat>=new Schema({
